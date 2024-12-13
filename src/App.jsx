@@ -6,6 +6,7 @@ import Branches from "./components/Branches";
 import ProductList from "./components/ProductList";
 import Cart from "./components/Cart";
 import PurchaseHistory from "./components/PurchaseHistory";
+import AdminDashboard from "./components/AdminDashboard";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/products" element={<ProductList />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/history" element={<PurchaseHistory />} />
+          <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
       </BrowserRouter>
     </>

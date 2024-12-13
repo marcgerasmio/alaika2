@@ -1,5 +1,6 @@
 import React from "react";
 import Navbar from "./Navbar";
+import { useEffect, useState } from "react";
 
 const purchases = [
   {
@@ -29,6 +30,26 @@ const purchases = [
 ];
 
 const PurchaseHistory = () => {
+  const userDetails = JSON.parse(sessionStorage.getItem("user"));
+  const [transactionData, setTransactionData] = useState([]);
+
+  useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const response = await fetch(
+            `http://localhost:1337/api/transactions?filters[customer_name][$eq]=${userDetails.name}`
+          );
+          const data = await response.json();
+          console.log(data.data)
+          setTransactionData(data.data)
+        } catch (error) {
+          console.error("Error fetching transaction data:", error);
+        } finally {;
+        }
+      };
+
+      fetchData();
+  }, []);
   return (
     <>
       <Navbar />
@@ -43,18 +64,16 @@ const PurchaseHistory = () => {
               <th>Date</th>
               <th>Product Name</th>
               <th>Quantity</th>
-              <th>Price</th>
               <th>Total</th>
             </tr>
           </thead>
           <tbody>
-            {purchases.map((purchase) => (
+            {transactionData.map((purchase) => (
               <tr key={purchase.id}>
                 <td>{purchase.date}</td>
-                <td>{purchase.productName}</td>
+                <td>{purchase.product_name}</td>
                 <td>{purchase.quantity}</td>
-                <td>${purchase.price.toFixed(2)}</td>
-                <td>${purchase.total.toFixed(2)}</td>
+                <td>₱{purchase.total}</td>
               </tr>
             ))}
           </tbody>

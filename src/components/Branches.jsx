@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function Branches() {
+  const navigate = useNavigate();
   const branches = [
     {
       id: 1,
@@ -21,6 +23,11 @@ function Branches() {
     },
   ];
 
+  const handleBranchClick = (branchName) => {
+    sessionStorage.setItem("selectedBranch", branchName);
+    navigate("/products");
+  };
+
   return (
     <section className="bg-white py-16">
       <div className="container mx-auto px-8">
@@ -30,10 +37,10 @@ function Branches() {
         <hr />
         <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-8 mt-5">
           {branches.map((branch) => (
-            <Link to="/products">
               <div
                 key={branch.id}
                 className="flex flex-col justify-between p-6 bg-gradient-to-br from-[#FFE4E1] to-[#FFC0CB] rounded-lg shadow-md hover:shadow-lg transition-shadow h-full"
+                onClick={() => handleBranchClick(branch.name)}
               >
                 <h3 className="text-xl font-semibold text-[#4B3D8F] mb-4">
                   {branch.name}
@@ -45,7 +52,6 @@ function Branches() {
                   Select
                 </button>
               </div>
-            </Link>
           ))}
         </div>
       </div>

@@ -26,20 +26,20 @@ const Navbar = () => {
                 </a>
               </li>
               <li>
-                <a
-                  href="/history"
-                  className="text-[#4B3D8F] font-bold hover:underline"
-                >
-                  Purchase History
-                </a>
-              </li>
-              <li>
                 <span
                   className="text-[#4B3D8F] font-bold hover:underline cursor-pointer"
                   onClick={handleCartClick}
                 >
                   Cart
                 </span>
+              </li>
+              <li>
+                <a
+                  href="/history"
+                  className="text-[#4B3D8F] font-bold hover:underline"
+                >
+                  Purchase History
+                </a>
               </li>
               <li>
                 <a

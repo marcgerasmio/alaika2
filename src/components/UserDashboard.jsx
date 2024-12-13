@@ -37,7 +37,6 @@ function UserDashboard() {
           </div>
         </section>
       </main>
-      <Footer />
     </div>
   );
 }

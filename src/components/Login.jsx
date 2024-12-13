@@ -1,11 +1,50 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState("user");
+  const [role, setRole] = useState("customers");
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError(null);
+
+    try {
+      const response = await fetch(
+        `http://localhost:1337/api/${role}?filters[email][$eq]=${email}`
+      );
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to fetch data");
+      }
+
+      if (data.data.length === 0) {
+        setError("Wrong Credentials");
+        return;
+      }
+
+      const user = data.data[0];
+      if (user.password !== password) {
+        setError("Incorrect password.");
+        return;
+      }
+
+      sessionStorage.setItem("user", JSON.stringify(user));
+
+      if (role === "admins") {
+        navigate("/admin");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      setError(err.message || "An error occurred while logging in.");
+    }
+  };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-[#FFE4E1] to-[#FFC0CB]">
@@ -16,7 +55,7 @@ function Login() {
             <span className="block text-xs text-center">GIFT SHOP</span>
           </a>
         </div>
-        <form>
+        <form onSubmit={handleLogin}>
           <div className="mb-2">
             <input
               type="email"
@@ -46,8 +85,8 @@ function Login() {
               value={role}
               onChange={(e) => setRole(e.target.value)}
             >
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
+              <option value="customers">Customer</option>
+              <option value="admins">Admin</option>
             </select>
           </div>
           <div className="mb-4 flex items-center">
