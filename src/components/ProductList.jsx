@@ -5,79 +5,6 @@ import Footer from "./Footer";
 function ProductList() {
   const selectedBranch = sessionStorage.getItem("selectedBranch");
   const userDetails = JSON.parse(sessionStorage.getItem("user"));
-  // const products = [
-  //   {
-  //     id: 1,
-  //     name: "Product 1",
-  //     description: "This is a description for product 1.",
-  //     price: "$29.99",
-  //     image: "img.jpg",
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Product 2",
-  //     description: "This is a description for product 2.",
-  //     price: "$19.99",
-  //     image: "img.jpg",
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "Product 3",
-  //     description: "This is a description for product 3.",
-  //     price: "$39.99",
-  //     image: "img.jpg",
-  //   },
-  //   {
-  //     id: 4,
-  //     name: "Product 4",
-  //     description: "This is a description for product 4.",
-  //     price: "$24.99",
-  //     image: "img.jpg",
-  //   },
-  //   {
-  //     id: 5,
-  //     name: "Product 5",
-  //     description: "This is a description for product 5.",
-  //     price: "$49.99",
-  //     image: "img.jpg",
-  //   },
-  //   {
-  //     id: 6,
-  //     name: "Product 6",
-  //     description: "This is a description for product 6.",
-  //     price: "$59.99",
-  //     image: "img.jpg",
-  //   },
-  //   {
-  //     id: 7,
-  //     name: "Product 7",
-  //     description: "This is a description for product 7.",
-  //     price: "$34.99",
-  //     image: "img.jpg",
-  //   },
-  //   {
-  //     id: 8,
-  //     name: "Product 8",
-  //     description: "This is a description for product 8.",
-  //     price: "$27.99",
-  //     image: "img.jpg",
-  //   },
-  //   {
-  //     id: 9,
-  //     name: "Product 9",
-  //     description: "This is a description for product 9.",
-  //     price: "$22.99",
-  //     image: "img.jpg",
-  //   },
-  //   {
-  //     id: 10,
-  //     name: "Product 10",
-  //     description: "This is a description for product 10.",
-  //     price: "$31.99",
-  //     image: "img.jpg",
-  //   },
-  // ];
-
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -93,7 +20,7 @@ function ProductList() {
           `http://localhost:1337/api/products?filters[branch_name][$eq]=${selectedBranch}`
         );
         const data = await response.json();
-        setProducts(data.data || []); 
+        setProducts(data.data || []);
       } catch (error) {
         console.error("Error fetching products:", error);
       }
@@ -112,8 +39,8 @@ function ProductList() {
         product_name: product.product_name,
         quantity: 1,
         price: product.product_price,
-        user_name: userDetails.name, 
-        branch_name : product.branch_name,
+        user_name: userDetails.name,
+        branch_name: product.branch_name,
       }
     };
     const jsonString = JSON.stringify(cartData);
@@ -121,7 +48,7 @@ function ProductList() {
       const response = await fetch("http://localhost:1337/api/carts", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json", 
+          "Content-Type": "application/json",
         },
         body: jsonString,
       });
@@ -132,7 +59,7 @@ function ProductList() {
         console.log(data);
         window.location.reload();
       } else {
-        const errorData = await response.text(); 
+        const errorData = await response.text();
         alert("Failed to add to cart!");
         console.error(errorData);
       }
@@ -152,16 +79,12 @@ function ProductList() {
   };
 
   const handleConfirmOrder = () => {
-   
     const updatedCart = cart.map((item) =>
       item.id === selectedProduct.id ? { ...item, quantity } : item
     );
     setCart(updatedCart);
 
-
     setIsModalVisible(false);
-
-  
     setIsConfirmationModalVisible(true);
     setQuantity(1);
   };
@@ -172,6 +95,11 @@ function ProductList() {
 
   const handleCloseConfirmationModal = () => {
     setIsConfirmationModalVisible(false);
+  };
+
+  // Function to convert price to number
+  const getProductPrice = (price) => {
+    return parseFloat(price.replace('₱', '').replace(',', ''));
   };
 
   return (
@@ -201,15 +129,15 @@ function ProductList() {
               >
                 <img
                   src={product.image}
-                  alt={product.name}
+                  alt={product.product_name}
                   className="w-full h-48 object-cover rounded-md mb-4"
                 />
                 <h3 className="text-xl font-semibold text-[#4B3D8F] mb-4">
                   {product.product_name}
                 </h3>
                 <div className="flex justify-between">
-                  <p className="text-lg font-bold text-[#4B3D8F] mb-4">
-                  ₱{product.product_price}
+                  <p className="text-lg font-bold text-[#4B3D8F]">
+                    ₱{product.product_price}
                   </p>
                   <span
                     className="text-[#4B3D8F] hover:text-[#3D2F7F] cursor-pointer underline"
@@ -218,7 +146,7 @@ function ProductList() {
                     Add to Cart
                   </span>
                 </div>
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-4 mt-4">
                   <button
                     onClick={() => handleCheckoutClick(product)}
                     className="bg-[#4B3D8F] hover:bg-[#3D2F7F] text-white px-4 py-2 rounded-md w-full"
@@ -231,7 +159,6 @@ function ProductList() {
           </div>
         </div>
       </section>
-
 
       {/* Modal for Checkout */}
       {isModalVisible && selectedProduct && (
@@ -250,13 +177,11 @@ function ProductList() {
               <div className="flex flex-col">
                 <img src={selectedProduct.image} alt="" />
                 <h4 className="text-lg font-semibold text-[#4B3D8F]">
-                  {selectedProduct.name}
+                  {selectedProduct.product_name}
                 </h4>
-                <p className="text-sm text-gray-600">
-                  {selectedProduct.description}
-                </p>
+                <p className="text-sm text-gray-600">{selectedProduct.description}</p>
                 <p className="text-sm font-bold text-[#4B3D8F] mb-4">
-                  Price: {selectedProduct.price}
+                  Price: ₱{selectedProduct.product_price}
                 </p>
                 <div className="flex items-center justify-start gap-3">
                   <label htmlFor="quantity" className="text-sm text-[#4B3D8F]">
@@ -275,9 +200,7 @@ function ProductList() {
                     <strong>Total Quantity:</strong> {quantity}
                   </p>
                   <p>
-                    <strong>Total Price:</strong> {selectedProduct.price} x{" "}
-                    {quantity} ={" "}
-                    {parseFloat(selectedProduct.price.slice(1)) * quantity}
+                    <strong>Total Price:</strong> ₱{getProductPrice(selectedProduct.product_price) * quantity}
                   </p>
                 </div>
               </div>
@@ -309,18 +232,17 @@ function ProductList() {
             </p>
             <div className="bg-gradient-to-br from-[#FFE4E1] to-[#FFC0CB] p-4 rounded-md">
               <h4 className="text-lg font-semibold text-[#4B3D8F] mb-2">
-                {selectedProduct.name}
+                {selectedProduct.product_name}
               </h4>
               <p className="text-sm font-bold text-[#4B3D8F] mb-2">
-                Price: {selectedProduct.price}
+                Price: ₱{selectedProduct.product_price}
               </p>
               <div className="text-sm text-[#4B3D8F] mb-4">
                 <p>
                   <strong>Total Quantity:</strong> {quantity}
                 </p>
                 <p>
-                  <strong>Total Price:</strong>{" "}
-                  {parseFloat(selectedProduct.price.slice(1)) * quantity}
+                  <strong>Total Price:</strong> ₱{getProductPrice(selectedProduct.product_price) * quantity}
                 </p>
               </div>
             </div>

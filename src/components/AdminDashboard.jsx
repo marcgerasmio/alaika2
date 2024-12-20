@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -19,13 +18,17 @@ function AdminDashboard() {
         const data = await response.json();
         const result = data.data;
 
-        const uniqueBranches = [...new Set(result.map((transaction) => transaction.branch_name))];
+        const uniqueBranches = [
+          ...new Set(result.map((transaction) => transaction.branch_name)),
+        ];
         setBranches(uniqueBranches);
 
         setTransactions(result);
 
         const filteredData = selectedBranch
-          ? result.filter((transaction) => transaction.branch_name === selectedBranch)
+          ? result.filter(
+              (transaction) => transaction.branch_name === selectedBranch
+            )
           : result;
 
         const aggregatedData = filteredData.reduce((acc, transaction) => {
@@ -57,41 +60,45 @@ function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 mb-10">
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
       <header className="border-b bg-gradient-to-br from-[#FFE4E1] to-[#FFC0CB]">
         <div className="container mx-auto px-4 h-20 flex items-center justify-between">
           <a href="/dashboard" className="text-2xl font-bold text-[#4B3D8F]">
             REGALO
             <span className="block text-xs text-center">GIFT SHOP</span>
           </a>
-          <nav className="hidden md:block">
+          <nav>
             <ul className="flex space-x-6">
               <li>
-                <a
-                  href="/"
+                <button
+                  onClick={logout}
                   className="text-[#4B3D8F] font-bold hover:underline"
                 >
                   Logout
-                </a>
+                </button>
               </li>
             </ul>
           </nav>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex space-x-4 mt-8">
-          {/* Transactions Table */}
-          <div className="px-6 w-1/2">
-            <h2 className="text-2xl font-bold mb-4">Transactions</h2>
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+        <div className="grid lg:grid-cols-2 gap-8">
+          {/* Transactions Section */}
+          <section className="bg-white p-6 shadow rounded-lg">
+            <h2 className="text-2xl font-bold mb-4 text-[#4B3D8F]">
+              Transactions
+            </h2>
             <div className="overflow-y-auto max-h-96">
-              <table className="min-w-full bg-white shadow-md rounded mb-4">
+              <table className="w-full border-collapse text-left">
                 <thead>
                   <tr>
-                    <th className="py-2 px-4 border-b text-left">Order ID</th>
-                    <th className="py-2 px-4 border-b text-left">Customer Name</th>
-                    <th className="py-2 px-4 border-b text-left">Product Name</th>
-                    <th className="py-2 px-4 border-b text-left">Quantity</th>
+                    <th className="py-2 px-4 border-b">Order ID</th>
+                    <th className="py-2 px-4 border-b">Customer Name</th>
+                    <th className="py-2 px-4 border-b">Product Name</th>
+                    <th className="py-2 px-4 border-b">Quantity</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -99,26 +106,34 @@ function AdminDashboard() {
                     transactions.map((transaction) => (
                       <tr key={transaction.id}>
                         <td className="py-2 px-4 border-b">{transaction.id}</td>
-                        <td className="py-2 px-4 border-b">{transaction.customer_name}</td>
-                        <td className="py-2 px-4 border-b">{transaction.product_name}</td>
-                        <td className="py-2 px-4 border-b">{transaction.quantity}</td>
+                        <td className="py-2 px-4 border-b">
+                          {transaction.customer_name}
+                        </td>
+                        <td className="py-2 px-4 border-b">
+                          {transaction.product_name}
+                        </td>
+                        <td className="py-2 px-4 border-b">
+                          {transaction.quantity}
+                        </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="4" className="text-center py-4">No transactions available</td>
+                      <td colSpan="4" className="text-center py-4">
+                        No transactions available
+                      </td>
                     </tr>
                   )}
                 </tbody>
               </table>
             </div>
-          </div>
+          </section>
 
-          {/* Top Sales Table */}
-          <div className="px-6 w-1/2">
-            <h2 className="text-2xl font-bold mb-4">Top Sales</h2>
+          {/* Top Sales Section */}
+          <section className="bg-white p-6 shadow rounded-lg">
+            <h2 className="text-2xl font-bold mb-4 text-[#4B3D8F]">Top Sales</h2>
             <select
-              className="w-full px-4 py-2 mt-2 mb-2 border rounded"
+              className="w-full px-4 py-2 mb-4 border rounded"
               value={selectedBranch}
               onChange={(e) => setSelectedBranch(e.target.value)}
             >
@@ -129,31 +144,37 @@ function AdminDashboard() {
                 </option>
               ))}
             </select>
-            <table className="min-w-full bg-white shadow-md rounded mb-4">
-              <thead>
-                <tr>
-                  <th className="py-2 px-4 border-b text-left">Product Name</th>
-                  <th className="py-2 px-4 border-b text-left">Total Quantity</th>
-                </tr>
-              </thead>
-              <tbody>
-                {topSales.length > 0 ? (
-                  topSales.map((sale, index) => (
-                    <tr key={index}>
-                      <td className="py-2 px-4 border-b">{sale.product_name}</td>
-                      <td className="py-2 px-4 border-b">{sale.quantity}</td>
-                    </tr>
-                  ))
-                ) : (
+            <div className="overflow-y-auto max-h-96">
+              <table className="w-full border-collapse text-left">
+                <thead>
                   <tr>
-                    <td colSpan="2" className="text-center py-4">No sales data available</td>
+                    <th className="py-2 px-4 border-b">Product Name</th>
+                    <th className="py-2 px-4 border-b">Total Quantity</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {topSales.length > 0 ? (
+                    topSales.map((sale, index) => (
+                      <tr key={index}>
+                        <td className="py-2 px-4 border-b">
+                          {sale.product_name}
+                        </td>
+                        <td className="py-2 px-4 border-b">{sale.quantity}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="2" className="text-center py-4">
+                        No sales data available
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

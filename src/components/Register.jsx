@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
+
 function Register() {
   const [image, setImage] = useState(null);
   const [name, setName] = useState("");
@@ -11,6 +12,7 @@ function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState("user");
   const navigate = useNavigate();
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,6 +31,7 @@ function Register() {
         password: password,
         image,
 
+
       }
     }
     const jsonString = JSON.stringify(jsonData);
@@ -45,7 +48,7 @@ function Register() {
         alert("Registration successful!");
         navigate("/");
       } else {
-        const errorData = await response.text(); 
+        const errorData = await response.text();
         alert("Registration failed!");
         console.error(errorData);
       }
@@ -54,6 +57,7 @@ function Register() {
       alert("An error occurred while registering!");
     }
   };
+
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-[#FFE4E1] to-[#FFC0CB]">
@@ -110,6 +114,7 @@ function Register() {
             />
           </div>
 
+
           <div className="mb-4 flex items-center">
             <input
               type="checkbox"
@@ -153,4 +158,8 @@ function Register() {
   );
 }
 
+
 export default Register;
+
+
+
