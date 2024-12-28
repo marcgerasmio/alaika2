@@ -79,25 +79,53 @@ function ProductList() {
   };
 
   const handleConfirmOrder = () => {
-    const updatedCart = cart.map((item) =>
-      item.id === selectedProduct.id ? { ...item, quantity } : item
-    );
-    setCart(updatedCart);
-
     setIsModalVisible(false);
     setIsConfirmationModalVisible(true);
-    setQuantity(1);
+
   };
 
   const handleCloseModal = () => {
     setIsModalVisible(false);
   };
 
-  const handleCloseConfirmationModal = () => {
+  const handleCloseConfirmationModal = async () => {
+    const today = new Date();
+    const formattedDate = today.toISOString().split('T')[0];
+    const cartData = {
+      data: {
+        product_name: selectedProduct.product_name,
+        quantity: quantity,
+        total: selectedProduct.product_price * quantity,
+        customer_name: userDetails.name,
+        date: formattedDate,
+        branch_name : selectedProduct.branch_name,
+      }
+    };
+    const jsonString = JSON.stringify(cartData);
+    try {
+      const response = await fetch("http://localhost:1337/api/transactions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonString,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+        window.location.reload();
+      } else {
+        const errorData = await response.text();
+        console.error(errorData);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An error occurred while adding to cart!");
+    }
     setIsConfirmationModalVisible(false);
   };
 
-  // Function to convert price to number
   const getProductPrice = (price) => {
     return parseFloat(price.replace('₱', '').replace(',', ''));
   };
@@ -191,7 +219,7 @@ function ProductList() {
                     type="number"
                     value={quantity}
                     min="1"
-                    onChange={handleQuantityChange}
+                    onChange={(e) => setQuantity(e.target.value)}
                     className="border border-[#4B3D8F] rounded-md p-2 w-16"
                   />
                 </div>

@@ -10,7 +10,7 @@ function Register() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState("user");
+  const [role, setRole] = useState("customers");
   const navigate = useNavigate();
 
 
@@ -20,23 +20,18 @@ function Register() {
       alert("Passwords do not match!");
       return;
     }
-    const formData = new FormData();
-    if (image) {
-      formData.append("files.image", image);
-    }
+    
     const jsonData = {
       data: {
         name: name,
         email: email,
         password: password,
-        image,
-
 
       }
     }
     const jsonString = JSON.stringify(jsonData);
     try {
-      const response = await fetch("http://localhost:1337/api/customers", {
+      const response = await fetch(`http://localhost:1337/api/${role}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
