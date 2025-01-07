@@ -21,6 +21,7 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/history" element={<PurchaseHistory />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/branches/:branchName" element={<Branches />} />
         </Routes>
       </BrowserRouter>
     </>

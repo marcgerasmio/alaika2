@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from "react"; 
 import { useNavigate } from "react-router-dom";
+import { FaSignOutAlt, FaSearch } from "react-icons/fa"; // Icons for search and logout
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -7,6 +8,7 @@ function AdminDashboard() {
   const [topSales, setTopSales] = useState([]);
   const [branches, setBranches] = useState([]);
   const [selectedBranch, setSelectedBranch] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -18,12 +20,17 @@ function AdminDashboard() {
         const data = await response.json();
         const result = data.data;
 
+        // Extract unique branches
         const uniqueBranches = [
           ...new Set(result.map((transaction) => transaction.branch_name)),
         ];
         setBranches(uniqueBranches);
 
-        setTransactions(result);
+        // Sort transactions by date (newest first)
+        const sortedTransactions = result.sort(
+          (a, b) => new Date(b.date) - new Date(a.date)
+        );
+        setTransactions(sortedTransactions);
 
         const filteredData = selectedBranch
           ? result.filter(
@@ -59,22 +66,28 @@ function AdminDashboard() {
     navigate("/");
   };
 
+  // Search filter for transactions
+  const filteredTransactions = transactions.filter((transaction) =>
+    transaction.product_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="border-b bg-gradient-to-br from-[#FFE4E1] to-[#FFC0CB]">
         <div className="container mx-auto px-4 h-20 flex items-center justify-between">
-          <div className="text-2xl font-bold text-[#4B3D8F]">
-            REGALO
-            <span className="block text-xs text-center">GIFT SHOP</span>
+          <div className="text-3xl font-bold text-[#4B3D8F] flex items-center space-x-2">
+            <span>REGALO</span>
+            <span className="text-sm text-[#4B3D8F] font-light">GIFT SHOP</span>
           </div>
           <nav>
             <ul className="flex space-x-6">
               <li>
                 <button
                   onClick={logout}
-                  className="text-[#4B3D8F] font-bold hover:underline"
+                  className="text-[#4B3D8F] font-bold hover:underline flex items-center"
                 >
+                  <FaSignOutAlt className="mr-2" />
                   Logout
                 </button>
               </li>
@@ -98,12 +111,15 @@ function AdminDashboard() {
                     <th className="py-2 px-4 border-b">Order ID</th>
                     <th className="py-2 px-4 border-b">Customer Name</th>
                     <th className="py-2 px-4 border-b">Product Name</th>
+                    <th className="py-2 px-4 border-b">Branch</th>
                     <th className="py-2 px-4 border-b">Quantity</th>
+                    <th className="py-2 px-4 border-b">Date</th>
+                    <th className="py-2 px-4 border-b">Total</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {transactions.length > 0 ? (
-                    transactions.map((transaction) => (
+                  {filteredTransactions.length > 0 ? (
+                    filteredTransactions.map((transaction) => (
                       <tr key={transaction.id}>
                         <td className="py-2 px-4 border-b">{transaction.id}</td>
                         <td className="py-2 px-4 border-b">
@@ -113,13 +129,22 @@ function AdminDashboard() {
                           {transaction.product_name}
                         </td>
                         <td className="py-2 px-4 border-b">
+                          {transaction.branch_name}
+                        </td>
+                        <td className="py-2 px-4 border-b">
                           {transaction.quantity}
+                        </td>
+                        <td className="py-2 px-4 border-b">
+                          {new Date(transaction.date).toLocaleDateString()}
+                        </td>
+                        <td className="py-2 px-4 border-b">
+                          {transaction.total.toLocaleString()}
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="4" className="text-center py-4">
+                      <td colSpan="6" className="text-center py-4">
                         No transactions available
                       </td>
                     </tr>

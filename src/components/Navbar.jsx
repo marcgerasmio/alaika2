@@ -11,17 +11,17 @@ const Navbar = () => {
 
   return (
     <>
-      <header className="border-b bg-gradient-to-br from-[#FFE4E1] to-[#FFC0CB]">
+      <header className="border-b bg-gradient-to-br from-[#FFE4E1] to-[#FFC0CB] shadow-md">
         <div className="container mx-auto px-4 h-20 flex items-center justify-between">
           {/* Logo */}
-          <a href="/dashboard" className="text-2xl font-bold text-[#4B3D8F]">
-            REGALO
-            <span className="block text-xs text-center">GIFT SHOP</span>
+          <a href="/dashboard" className="text-3xl font-bold text-[#4B3D8F] flex items-center space-x-2">
+            <span>REGALO</span>
+            <span className="text-sm text-[#4B3D8F] font-light">GIFT SHOP</span>
           </a>
 
           {/* Hamburger Menu */}
           <button
-            className="md:hidden text-[#4B3D8F] text-2xl"
+            className="md:hidden text-[#4B3D8F] text-3xl"
             onClick={toggleMenu}
           >
             ☰
@@ -33,18 +33,18 @@ const Navbar = () => {
               isMenuOpen ? "translate-x-0" : "-translate-x-full"
             } md:translate-x-0`}
           >
-            <ul className="flex flex-col md:flex-row md:space-x-6">
+            <ul className="flex flex-col md:flex-row md:space-x-8">
               <li className="mb-2 md:mb-0">
                 <a
                   href="/branches"
-                  className="text-[#4B3D8F] font-bold hover:underline"
+                  className="text-[#4B3D8F] font-semibold hover:text-[#3D2F7F] hover:underline transition duration-300"
                 >
                   Branches
                 </a>
               </li>
               <li className="mb-2 md:mb-0">
                 <span
-                  className="text-[#4B3D8F] font-bold hover:underline cursor-pointer"
+                  className="text-[#4B3D8F] font-semibold hover:text-[#3D2F7F] hover:underline cursor-pointer transition duration-300"
                   onClick={handleCartClick}
                 >
                   Cart
@@ -53,7 +53,7 @@ const Navbar = () => {
               <li className="mb-2 md:mb-0">
                 <a
                   href="/history"
-                  className="text-[#4B3D8F] font-bold hover:underline"
+                  className="text-[#4B3D8F] font-semibold hover:text-[#3D2F7F] hover:underline transition duration-300"
                 >
                   Purchase History
                 </a>
@@ -61,7 +61,7 @@ const Navbar = () => {
               <li>
                 <a
                   href="/"
-                  className="text-[#4B3D8F] font-bold hover:underline"
+                  className="text-[#4B3D8F] font-semibold hover:text-[#3D2F7F] hover:underline transition duration-300"
                 >
                   Logout
                 </a>
@@ -77,7 +77,7 @@ const Navbar = () => {
           <div className="bg-white rounded-lg shadow-lg w-11/12 md:w-1/2 p-6 relative max-h-[80vh] overflow-auto">
             <button
               onClick={handleCloseCart}
-              className="absolute top-4 right-4 text-[#4B3D8F] font-bold"
+              className="absolute top-4 right-4 text-[#4B3D8F] font-bold text-2xl"
             >
               ✕
             </button>
