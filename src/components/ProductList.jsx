@@ -16,6 +16,10 @@ function ProductList() {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [category, setCategory] = useState("");
+    const [paymentMethod, setPaymentMethod] = useState("Cash on Delivery");
+     const [paypalEmail, setPaypalEmail] = useState("");
+      const [paypalPhone, setPaypalPhone] = useState("");
+      const [paypalName, setPaypalName] = useState("");
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -109,6 +113,7 @@ function ProductList() {
         customer_name: userDetails.name,
         date: formattedDate,
         branch_name : selectedProduct.branch_name,
+        modeOfPayment: paymentMethod,
       }
     };
     const jsonString = JSON.stringify(cartData);
@@ -320,6 +325,42 @@ function ProductList() {
                     className="border border-[#4B3D8F] rounded-md p-2 w-16"
                   />
                 </div>
+                <div className="mt-4">
+              <label className="block mb-2">Payment Method</label>
+              <select
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+                className="w-full border rounded p-2"
+              >
+                <option value="Cash on Delivery">Cash on Delivery</option>
+                <option value="Paypal">PayPal</option>
+              </select>
+              {paymentMethod === "Paypal" && (
+                <div className="mt-4">
+                  <input
+                    type="email"
+                    placeholder="PayPal Email"
+                    value={paypalEmail}
+                    onChange={(e) => setPaypalEmail(e.target.value)}
+                    className="w-full border rounded p-2 mb-2"
+                  />
+                  <input
+                    type="text"
+                    placeholder="PayPal Phone"
+                    value={paypalPhone}
+                    onChange={(e) => setPaypalPhone(e.target.value)}
+                    className="w-full border rounded p-2 mb-2"
+                  />
+                    <input
+                    type="text"
+                    placeholder="PayPal Name"
+                    value={paypalName}
+                    onChange={(e) => setPaypalName(e.target.value)}
+                    className="w-full border rounded p-2"
+                  />
+                </div>
+              )}
+            </div>
                 <div className="mt-4 text-sm text-[#4B3D8F]">
                   <p>
                     <strong>Total Quantity:</strong> {quantity}
@@ -356,6 +397,9 @@ function ProductList() {
               Your order has been successfully placed!
             </p>
             <div className="bg-gradient-to-br from-[#FFE4E1] to-[#FFC0CB] p-4 rounded-md">
+            <p className="text-sm font-bold text-[#4B3D8F] mb-2">
+                Payment Method: {paymentMethod}
+              </p>
               <h4 className="text-lg font-semibold text-[#4B3D8F] mb-2">
                 {selectedProduct.product_name}
               </h4>

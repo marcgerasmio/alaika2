@@ -1,6 +1,11 @@
-import { useState, useEffect } from "react"; 
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaSignOutAlt, FaSearch } from "react-icons/fa"; // Icons for search and logout
+import { Bar } from "react-chartjs-2";
+import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js";
+
+// Register chart components
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -9,16 +14,35 @@ function AdminDashboard() {
   const [branches, setBranches] = useState([]);
   const [selectedBranch, setSelectedBranch] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [chartData, setChartData] = useState(null);
+  const [chartBranchFilter, setChartBranchFilter] = useState("");
+  const [cashOnDeliveryCount, setCashOnDeliveryCount] = useState(0);
+  const [paypalCount, setPaypalCount] = useState(0);
 
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await fetch("http://localhost:1337/api/transactions");
+        const response = await fetch("http://localhost:1337/api/transactions?pagination[pageSize]=1000");
         if (!response.ok) {
           throw new Error("Failed to fetch transactions");
         }
         const data = await response.json();
         const result = data.data;
+
+        const paymentCounts = result.reduce(
+          (acc, transaction) => {
+            if (transaction.modeOfPayment === "Cash on Delivery") {
+              acc.cashOnDelivery += 1;
+            } else if (transaction.modeOfPayment === "Paypal") {
+              acc.paypal += 1;
+            }
+            return acc;
+          },
+          { cashOnDelivery: 0, paypal: 0 }
+        );
+
+        setCashOnDeliveryCount(paymentCounts.cashOnDelivery);
+        setPaypalCount(paymentCounts.paypal);
 
         // Extract unique branches
         const uniqueBranches = [
@@ -53,13 +77,48 @@ function AdminDashboard() {
           .slice(0, 20);
 
         setTopSales(topSalesData);
+
+        // Prepare chart data
+        prepareChartData(result, chartBranchFilter);
       } catch (error) {
         console.error("Error fetching transactions:", error);
       }
     };
 
     fetchTransactions();
-  }, [selectedBranch]);
+  }, [selectedBranch, chartBranchFilter]);
+
+  const prepareChartData = (data, branch) => {
+    const today = new Date();
+    const days = Array.from({ length: 5 }, (_, i) => {
+      const date = new Date();
+      date.setDate(today.getDate() - (3 - i)); 
+      return date.toISOString().split("T")[0]; 
+    });
+
+    const filteredData = branch
+      ? data.filter((transaction) => transaction.branch_name === branch)
+      : data;
+
+    const ordersPerDay = days.map((day) => {
+      return filteredData.filter((transaction) =>
+        transaction.date.startsWith(day)
+      ).length;
+    });
+
+    setChartData({
+      labels: days.map((day) => new Date(day).toLocaleDateString()),
+      datasets: [
+        {
+          label: `Orders Per Day${branch ? ` (${branch})` : ""}`,
+          data: ordersPerDay,
+          backgroundColor: "rgba(75, 192, 192, 0.6)",
+          borderColor: "rgba(75, 192, 192, 1)",
+          borderWidth: 1,
+        },
+      ],
+    });
+  };
 
   const logout = () => {
     sessionStorage.clear();
@@ -104,10 +163,15 @@ function AdminDashboard() {
             <h2 className="text-2xl font-bold mb-4 text-[#4B3D8F]">
               Transactions
             </h2>
+            <div className="flex mb-3">
+            <h2 className="me-3">Cash on Delivery: {cashOnDeliveryCount}</h2>
+            <h2>Paypal: {paypalCount} </h2>
+            </div>
             <div className="overflow-y-auto max-h-96">
               <table className="w-full border-collapse text-left">
                 <thead>
                   <tr>
+                    <th className="py-2 px-4 border-b">Mode of Payment</th>
                     <th className="py-2 px-4 border-b">Order ID</th>
                     <th className="py-2 px-4 border-b">Customer Name</th>
                     <th className="py-2 px-4 border-b">Product Name</th>
@@ -121,6 +185,9 @@ function AdminDashboard() {
                   {filteredTransactions.length > 0 ? (
                     filteredTransactions.map((transaction) => (
                       <tr key={transaction.id}>
+                        <td className="py-2 px-4 border-b">
+                          {transaction.modeOfPayment}
+                        </td>
                         <td className="py-2 px-4 border-b">{transaction.id}</td>
                         <td className="py-2 px-4 border-b">
                           {transaction.customer_name}
@@ -199,6 +266,32 @@ function AdminDashboard() {
             </div>
           </section>
         </div>
+
+        {/* Bar Chart Section */}
+        {chartData && (
+       <section className="bg-white p-6 shadow rounded-lg mt-8">
+       <h2 className="text-2xl font-bold mb-4 text-[#4B3D8F]">
+         Orders Per Day
+       </h2>
+       <select
+         className="w-full px-4 py-2 mb-4 border rounded"
+         value={chartBranchFilter}
+         onChange={(e) => setChartBranchFilter(e.target.value)}
+       >
+         <option value="">All Branches</option>
+         {branches.map((branch, index) => (
+           <option key={index} value={branch}>
+             {branch}
+           </option>
+         ))}
+       </select>
+       {chartData ? (
+         <Bar data={chartData} />
+       ) : (
+         <p className="text-center text-gray-500">No data available</p>
+       )}
+     </section>
+        )}
       </main>
     </div>
   );
