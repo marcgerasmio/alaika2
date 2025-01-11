@@ -93,25 +93,28 @@ function AdminDashboard() {
     const days = Array.from({ length: 5 }, (_, i) => {
       const date = new Date();
       date.setDate(today.getDate() - (3 - i)); 
-      return date.toISOString().split("T")[0]; 
+      return date.toISOString().split("T")[0];
     });
-
+  
     const filteredData = branch
       ? data.filter((transaction) => transaction.branch_name === branch)
       : data;
-
-    const ordersPerDay = days.map((day) => {
-      return filteredData.filter((transaction) =>
-        transaction.date.startsWith(day)
-      ).length;
+  
+    const salesPerDay = days.map((day) => {
+      return filteredData
+        .filter((transaction) => transaction.date.startsWith(day))
+        .reduce((total, transaction) => {
+          const transactionTotal = parseInt(transaction.total, 10) || 0;
+          return total + transactionTotal;
+        }, 0);
     });
-
+  
     setChartData({
       labels: days.map((day) => new Date(day).toLocaleDateString()),
       datasets: [
         {
-          label: `Orders Per Day${branch ? ` (${branch})` : ""}`,
-          data: ordersPerDay,
+          label: `Total Sales Per Day${branch ? ` (${branch})` : ""}`,
+          data: salesPerDay,
           backgroundColor: "rgba(75, 192, 192, 0.6)",
           borderColor: "rgba(75, 192, 192, 1)",
           borderWidth: 1,
@@ -119,6 +122,7 @@ function AdminDashboard() {
       ],
     });
   };
+  
 
   const logout = () => {
     sessionStorage.clear();
@@ -271,7 +275,7 @@ function AdminDashboard() {
         {chartData && (
        <section className="bg-white p-6 shadow rounded-lg mt-8">
        <h2 className="text-2xl font-bold mb-4 text-[#4B3D8F]">
-         Orders Per Day
+         Sales Per Day
        </h2>
        <select
          className="w-full px-4 py-2 mb-4 border rounded"
